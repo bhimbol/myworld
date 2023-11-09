@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+#import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$+q(2pz$1x_b3j8%1k(m@%t4+lq5vss04q=gjs0mjzpwj4c9$e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'airbytes.pythonanywhere.com',
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'my_web_portfolio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["/dashboard/images/"],
+        'DIRS': [BASE_DIR / 'templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,6 +121,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+PYTHONANYWHERE_STATIC_DIR = '/home/airbytes/myworld/my_web_portfolio/static'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    PYTHONANYWHERE_STATIC_DIR,
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
