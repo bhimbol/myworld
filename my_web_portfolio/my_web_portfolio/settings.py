@@ -120,13 +120,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-PYTHONANYWHERE_STATIC_DIR = '/home/airbytes/myworld/my_web_portfolio/static'
+ROOT_URL = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    PYTHONANYWHERE_STATIC_DIR,
 ]
 
 # Default primary key field type
