@@ -1,5 +1,11 @@
 body {
     font-family: Arial, sans-serif;
+    /*
+    background-image: url('Untitled-1.png');
+    */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 header {
     background-color: #0074cc;
