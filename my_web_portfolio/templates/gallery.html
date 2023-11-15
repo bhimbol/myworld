@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Galley{% endblock %}
+
+{% block content %}
+ <style>
+        .gallery-item {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .gallery-item p {
+            padding: 15px;
+            font-size: 16px;
+            color: #555;
+        }
+</style>
+
+    <h1>Gallery</h2>
+    {% for image in images %}
+        <div class="gallery-item">
+            <img src="{{ image.image.url }}" alt="{{ image.title }}">
+            <h3 style="color: #008080; font-size: 24px; margin-left: 5px; margin-bottom: 5px;">{{ image.title }}</h3>
+            <p style="color: #000; font-size: 18px;">{{ image.description }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
