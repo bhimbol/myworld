@@ -1,41 +1,49 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Galley{% endblock %}
+{% block title %}Gallery{% endblock %}
 
 {% block content %}
- <style>
-        .gallery-item {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    <style>
+        .gallery-image {
             transition: transform 0.3s ease-in-out;
         }
 
-        .gallery-item:hover {
-            transform: scale(1.05);
+        .gallery-image:hover {
+            transform: scale(1.1); /* Increase the scale value to enlarge more */
         }
+    </style>
+    <div class="container mt-4">
+        <h1 class="mt-4 mb-4">Gallery</h1>
+        {% for image in images %}
+            <div class="gallery-item">
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid img-thumbnail gallery-image">
+                <h3>{{ image.title }}</h3>
+                <p>{{ image.description }}</p>
 
-        .gallery-item img {
-            width: 100%;
-            height: auto;
-            border-bottom: 1px solid #ddd;
-        }
+                <div class="comments">
+                    <h3>Comments</h3>
+                    {% for comment in image.comment_set.all %}
+                        <div class="comment">
+                            <strong>{{ comment.author }}</strong>
+                            <p>{{ comment.text }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
 
-        .gallery-item p {
-            padding: 15px;
-            font-size: 16px;
-            color: #555;
-        }
-</style>
+                <form method="post" action="{% url 'add_image_comment' image.id %}">
+                     {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_author">Your Name:</label>
+                        <input type="text" name="author" required id="id_author" class="form-control">
+                    </div>
 
-    <h1>Gallery</h2>
-    {% for image in images %}
-        <div class="gallery-item">
-            <img src="{{ image.image.url }}" alt="{{ image.title }}">
-            <h3 style="color: #008080; font-size: 24px; margin-left: 5px; margin-bottom: 5px;">{{ image.title }}</h3>
-            <p style="color: #000; font-size: 18px;">{{ image.description }}</p>
-        </div>
-    {% endfor %}
+                    <div class="form-group">
+                        <label for="id_text">Your Comment:</label>
+                        <textarea name="text" required id="id_text" class="form-control"></textarea>
+                     </div>
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
