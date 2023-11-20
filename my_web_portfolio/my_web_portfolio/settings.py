@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 
+TWILIO_ACCOUNT_SID = os.environ.get('AC64fd9e4f482a213ba4162eb1405a3b62')
+TWILIO_AUTH_TOKEN = os.environ.get('d363edbacf444c0547aa81dee1b09ed5')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-$+q(2pz$1x_b3j8%1k(m@%t4+lq5vss04q=gjs0mjzpwj4c9$e'
@@ -21,7 +24,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'dashboard',
     'comments',
-    'gallery'
+    'gallery',
+    'sendSMS',
+    'vonage',
 ]
 
 MIDDLEWARE = [
