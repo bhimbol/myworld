@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from twilio.rest import Client
 import logging
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 @csrf_exempt
@@ -38,9 +39,9 @@ def send_sms(request):
     sms_messages = IncomingSMS.objects.all()
     if request.method == 'POST':
         try:
-            twilio_account_sid = 'AC64fd9e4f482a213ba4162eb1405a3b62'
-            twilio_auth_token = 'd363edbacf444c0547aa81dee1b09ed5'
-            twilio_phone_number = '+16509008240'
+            twilio_account_sid = settings.TWILIO_ACCOUNT_SID
+            twilio_auth_token = settings.TWILIO_AUTH_TOKEN
+            twilio_phone_number = settings.TWILIO_PHONE_NUMBER
             recipient_number = request.POST.get('recipient_number')
             message_text = request.POST.get('message_body')
             client = Client(twilio_account_sid, twilio_auth_token)

@@ -1,8 +1,10 @@
 from pathlib import Path
 import os
 
-TWILIO_ACCOUNT_SID = os.environ.get('AC64fd9e4f482a213ba4162eb1405a3b62')
-TWILIO_AUTH_TOKEN = os.environ.get('d363edbacf444c0547aa81dee1b09ed5')
+try:
+    from local_settings import *
+except ImportError:
+    pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
