@@ -33,9 +33,9 @@
                                 <tr>
                                     <td class="p-2">{{ product.sku }}</td>
                                     <td class="p-2">{{ product.description }}</td>
-                                    <td class="p-2">{{ product.bcpcs }}</td>
-                                    <td class="p-2">{{ product.bcib }}</td>
-                                    <td class="p-2">{{ product.bccs }}</td>
+                                    <td class="p-2">{{ product.bcpcs | safe }}</td>
+                                    <td class="p-2">{{ product.bcib | safe }}</td>
+                                    <td class="p-2">{{ product.bccs | safe }}</td>
                                     <td class="p-2">{{ product.qtyperpcs }}</td>
                                 </tr>
                             {% endif %}
@@ -100,7 +100,7 @@
 
                 tr.each(function () {
                     var found = false;
-                    $(this).find("td:lt(2)").each(function () {  // Search only in the first two columns (index 0 and 1)
+                    $(this).find("td:lt(3)").each(function () {  // Search only in the first two columns (index 0 and 1)
                         txtValue = $(this).text();
                         if (txtValue.toUpperCase().indexOf(filter) > -1) {
                             found = true;

@@ -11,5 +11,6 @@ urlpatterns = [
 	path('comments/', include('comments.urls')),
 	path('gallery/', include('gallery.urls')),
 	path('admin/', admin.site.urls),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 

@@ -25,8 +25,11 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="/send_sms">SMS</a>
+                            <a class="dropdown-item" href="/asn">ASN Tool</a>
                             <a class="dropdown-item" href="/product_details">Product Details</a>
-                            <a class="dropdown-item" href="#">Reports</a>
+                            <a class="dropdown-item" href="/promo_calculator">Promo Calculator</a>
+                            <a class="dropdown-item" href="/val/?redirect_uri=https://airbytes.pythonanywhere.com/val">Update Valuations</a>
+                            <a class="dropdown-item" href="javascript:void(0);" onclick="openPopup();">Update Product Details</a>
                         </div>
                     </li>
                 </ul>
@@ -34,3 +37,8 @@
         </nav>
     </div>
 </header>
+<script>
+    function openPopup() {
+        window.open('/upload_pd', 'Upload Popup', 'width=400,height=400');
+    }
+</script>
