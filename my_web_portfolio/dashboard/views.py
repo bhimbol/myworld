@@ -1,15 +1,28 @@
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django import forms
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
 from django.template import loader
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from .models import Product, Promo, Valuation
+import requests
 import pandas as pd
 import json
 import os.path
 import os
-import traceback
+from django.views.decorators.http import require_POST
+import ast
+import logging
+from django.conf import settings
+import shutil
+import base64
+import xlrd
+from openpyxl import load_workbook
+
+
+
+logger = logging.getLogger(__name__)
 
 def render_template(request, template_name, context=None):
     context = context or {}
@@ -147,19 +160,6 @@ def val(request):
         form = FileUploadForm()
     return render(request, 'val.html', {'form': form})
 
-
-
-from google.auth.transport.requests import Request
-#from google.auth.transport.requests import RevokeCredentialsRequest
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from datetime import datetime, timedelta
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.http import JsonResponse
-import json
-import requests
-
 def get_path_from_static(fname):
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
     DJANGO_PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
@@ -229,7 +229,6 @@ def callback_view(request):
     except Exception as e:
         return HttpResponse(f"Error {e}")
 
-import base64
 def get_gmail_messages(request, keywords=None, rdd=None, sender=None, has_attachment=True):
     try:
         if 'google_credentials' in request.session:
@@ -261,7 +260,7 @@ def get_gmail_messages(request, keywords=None, rdd=None, sender=None, has_attach
                             att = gmail_service.users().messages().attachments().get(userId='me', messageId=message['id'], id=att_id).execute()
                             data = att['data']
                         file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                        path = part['filename']
+                        #path = part['filename']
                         attachments.append({'filename': part['filename'], 'data': file_data})
                 message_list.append({'id': message['id'], 'subject': subject, 'attachments': attachments})
             return message_list
@@ -278,38 +277,22 @@ class ASNForm(forms.Form):
 
 def asn(request):
     form = ASNForm()
-    messages = []
-    to_download_list = []
     if 'google_credentials' in request.session:
         google_authenticated = True
     else:
         google_authenticated = False
-
-    '''
-    if 'to_download_list' in request.session:
-        to_download_list = request.session['to_download_list']
-        del request.session['to_download_list']
-    '''
 
     if request.method == 'POST':
         form = ASNForm(request.POST)
         if form.is_valid():
             rdd = form.cleaned_data['rdd']
             try:
+                messages = []
                 messages = get_gmail_messages(request, keywords=['FDC-Borongan, PO#:', rdd.strftime('%d %b %Y')], sender='kmgflores@fastgroup.biz', has_attachment=True)
-                #return JsonResponse({'messages': messages})
+                messages_count = len(messages)
             except Exception as e:
                 return JsonResponse({'error': f"Error: {e}"})
-    return render(request, 'asn.html', {'form': form, 'google_authenticated': google_authenticated, 'messages': messages})
-    #return render(request, 'asn.html', {'form': form, 'google_authenticated': google_authenticated, 'messages': messages, 'to_download_list': to_download_list})
-
-from django.views.decorators.http import require_POST
-import ast
-import logging
-from django.conf import settings
-import shutil
-
-logger = logging.getLogger(__name__)
+    return render(request, 'asn.html', {'form': form, 'google_authenticated': google_authenticated, 'messages': messages, 'messages_count': messages_count})
 
 @require_POST
 def download_selected_attachments(request):
@@ -340,9 +323,6 @@ def download_selected_attachments(request):
         return HttpResponse("Successfully Downloaded ASN Files. Proceed to <a href='/asn_process/'>Process ASN</a>.")
     except (SyntaxError, ValueError) as e:
         return HttpResponse(f"{e}")
-
-import xlrd
-from openpyxl import load_workbook
 
 def asn_process(request):
     existing_file_name = 'summary.xlsx'
@@ -391,75 +371,3 @@ def append_contents_to_existing_final(existing_final_file_path, list_of_files):
         response['Content-Disposition'] = f'attachment; filename={existing_final_file_path}'
 
     return response
-
-
-
-
-
-
-
-
-
-
-''' Save to local
-from django.views.decorators.http import require_POST
-import ast
-import zipfile
-import logging
-from django.conf import settings
-
-logger = logging.getLogger(__name__)
-
-@require_POST
-def download_selected_attachments(request):
-    selected_messages_list = request.POST.getlist('selected_messages')
-    if not selected_messages_list:
-        return JsonResponse({'to_download_list': []})
-
-    to_download_list = []
-
-    for message_str in selected_messages_list:
-        try:
-            message = ast.literal_eval(message_str)
-            attachments = message.get('attachments', [])
-
-            for attachment in attachments:
-                filename = attachment.get('filename', '')
-                data = attachment.get('data', '')
-
-                if '.xls' in filename:
-                    to_download_list.append({'filename': filename, 'data': data})
-
-        except (SyntaxError, ValueError) as e:
-            logger.error(f"Error evaluating string: {e}")
-
-    if not to_download_list:
-        return JsonResponse({'to_download_list': []})
-
-    # Create a temporary zip file
-    zip_file_path = os.path.join(settings.BASE_DIR, 'attachments', 'downloaded_files.zip')
-
-    try:
-        with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
-            for entry in to_download_list:
-                    filename = entry['filename']
-                    data = entry['data']
-                    zip_file.writestr(filename, data)
-
-        response = HttpResponse(content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename=downloaded_files.zip'
-
-        with open(zip_file_path, 'rb') as zip_file:
-            response.write(zip_file.read())
-
-    except Exception as e:
-        logger.error(f"Error creating ZIP file: {e}")
-        response = JsonResponse({'error': 'Failed to create ZIP file'})
-
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(zip_file_path):
-            os.remove(zip_file_path)
-
-    return response
-'''

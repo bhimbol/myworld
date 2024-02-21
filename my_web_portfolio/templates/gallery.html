@@ -16,7 +16,7 @@
     </style>
     <div class="container mt-4">
         <h1 class="mt-4 mb-4">Gallery</h1>
-        {% for image in images %}
+            {% for image in images|dictsortreversed:"created_at" %}
             <div class="gallery-item">
                 <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid img-thumbnail gallery-image">
                 <h3>{{ image.title }}</h3>
